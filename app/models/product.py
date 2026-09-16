@@ -27,8 +27,8 @@ class Product(SQLModel, table=True):
     rejection_reason: Optional[str] = Field(sa_column=Column("rejection_reason", Text()), default=None)
     approved_at: Optional[datetime] = None
     approved_by: Optional[UUID] = Field(default=None, foreign_key="users.id")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     seller: "Seller" = Relationship(back_populates="products")
     approved_by_user: Optional["User"] = Relationship(back_populates="products_approved")

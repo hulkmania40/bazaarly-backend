@@ -26,8 +26,8 @@ class Order(SQLModel, table=True):
     currency: str = "USD"
     status: OrderStatus = Field(default=OrderStatus.pending, index=True)
     payment_ref: Optional[str] = Field(default=None, index=True, unique=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     customer: "User" = Relationship(back_populates="orders_as_customer")
     seller: "Seller" = Relationship(back_populates="orders")

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from app.models.user import User, Role
 from app.models.seller import Seller
 from app.models.product import Product, ProductStatus
-from app.models.order import Order, OrderItem
+from app.models.order import Order, OrderItem, OrderStatus
 from app.core.security import hash_password
 from app.db.session import engine
 
@@ -16,22 +16,25 @@ def _uid(seed: str) -> UUID:
 
 
 ADMIN_ID = _uid("user:1")
-SELLER1_ID = _uid("user:2")
-SELLER2_ID = _uid("user:3")
+SELLER_USER1_ID = _uid("user:2")
+SELLER_USER2_ID = _uid("user:3")
 CUST1_ID = _uid("user:4")
 CUST2_ID = _uid("user:5")
 
+SELLER1_ID = _uid("seller:1")
+SELLER2_ID = _uid("seller:2")
+
 USERS = [
     User(id=ADMIN_ID, name="Bazaarly Admin", email="admin@bazaarly.test", password_hash=hash_password("password123"), role=Role.admin),
-    User(id=SELLER1_ID, name="Aria Stores", email="seller@bazaarly.test", password_hash=hash_password("password123"), role=Role.seller),
-    User(id=SELLER2_ID, name="Nova Crafts", email="seller2@bazaarly.test", password_hash=hash_password("password123"), role=Role.seller),
+    User(id=SELLER_USER1_ID, name="Aria Stores", email="seller@bazaarly.test", password_hash=hash_password("password123"), role=Role.seller),
+    User(id=SELLER_USER2_ID, name="Nova Crafts", email="seller2@bazaarly.test", password_hash=hash_password("password123"), role=Role.seller),
     User(id=CUST1_ID, name="Jane Buyer", email="customer@bazaarly.test", password_hash=hash_password("password123"), role=Role.customer),
     User(id=CUST2_ID, name="Ravi K.", email="customer2@bazaarly.test", password_hash=hash_password("password123"), role=Role.customer),
 ]
 
 SELLERS = [
-    Seller(id=_uid("seller:1"), user_id=SELLER1_ID, store_name="Aria Stores", description="Handmade ceramics & home goods", avatar_url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100"),
-    Seller(id=_uid("seller:2"), user_id=SELLER2_ID, store_name="Nova Crafts", description="Minimalist leather goods", avatar_url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100"),
+    Seller(id=SELLER1_ID, user_id=SELLER_USER1_ID, store_name="Aria Stores", description="Handmade ceramics & home goods", avatar_url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100"),
+    Seller(id=SELLER2_ID, user_id=SELLER_USER2_ID, store_name="Nova Crafts", description="Minimalist leather goods", avatar_url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100"),
 ]
 
 PRODUCTS = [
@@ -60,11 +63,11 @@ PRODUCTS = [
 ]
 
 ORDERS = [
-    Order(id=_uid("order:1"), customer_id=CUST1_ID, seller_id=SELLER1_ID, total=Decimal("44.49"), currency="USD", status=OrderStatus.pending, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc)),
-    Order(id=_uid("order:2"), customer_id=CUST1_ID, seller_id=SELLER2_ID, total=Decimal("77.00"), currency="USD", status=OrderStatus.paid, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc)),
-    Order(id=_uid("order:3"), customer_id=CUST2_ID, seller_id=SELLER1_ID, total=Decimal("29.99"), currency="USD", status=OrderStatus.accepted, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc)),
-    Order(id=_uid("order:4"), customer_id=CUST2_ID, seller_id=SELLER2_ID, total=Decimal("59.00"), currency="USD", status=OrderStatus.out_for_delivery, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc)),
-    Order(id=_uid("order:5"), customer_id=CUST1_ID, seller_id=SELLER1_ID, total=Decimal("14.50"), currency="USD", status=OrderStatus.delivered, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc)),
+    Order(id=_uid("order:1"), customer_id=CUST1_ID, seller_id=SELLER1_ID, total=Decimal("44.49"), currency="USD", status=OrderStatus.pending, created_at=datetime.now(timezone.utc).replace(tzinfo=None), updated_at=datetime.now(timezone.utc).replace(tzinfo=None)),
+    Order(id=_uid("order:2"), customer_id=CUST1_ID, seller_id=SELLER2_ID, total=Decimal("77.00"), currency="USD", status=OrderStatus.paid, created_at=datetime.now(timezone.utc).replace(tzinfo=None), updated_at=datetime.now(timezone.utc).replace(tzinfo=None)),
+    Order(id=_uid("order:3"), customer_id=CUST2_ID, seller_id=SELLER1_ID, total=Decimal("29.99"), currency="USD", status=OrderStatus.accepted, created_at=datetime.now(timezone.utc).replace(tzinfo=None), updated_at=datetime.now(timezone.utc).replace(tzinfo=None)),
+    Order(id=_uid("order:4"), customer_id=CUST2_ID, seller_id=SELLER2_ID, total=Decimal("59.00"), currency="USD", status=OrderStatus.out_for_delivery, created_at=datetime.now(timezone.utc).replace(tzinfo=None), updated_at=datetime.now(timezone.utc).replace(tzinfo=None)),
+    Order(id=_uid("order:5"), customer_id=CUST1_ID, seller_id=SELLER1_ID, total=Decimal("14.50"), currency="USD", status=OrderStatus.delivered, created_at=datetime.now(timezone.utc).replace(tzinfo=None), updated_at=datetime.now(timezone.utc).replace(tzinfo=None)),
 ]
 
 OIS = [
@@ -82,18 +85,28 @@ async def seed() -> None:
     session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with session_factory() as session:
         for user in USERS:
-            stmt = pg_insert(User).values(user.model_dump()).on_conflict_do_nothing(index_elements=["id"])
+            await session.execute(User.__table__.delete().where(User.id == user.id))
+        for seller in SELLERS:
+            await session.execute(Seller.__table__.delete().where(Seller.id == seller.id))
+        for product in PRODUCTS:
+            await session.execute(Product.__table__.delete().where(Product.id == product.id))
+        for order in ORDERS:
+            await session.execute(Order.__table__.delete().where(Order.id == order.id))
+        for oi in OIS:
+            await session.execute(OrderItem.__table__.delete().where(OrderItem.id == oi.id))
+        for user in USERS:
+            stmt = pg_insert(User).values(user.model_dump())
             await session.execute(stmt)
         for seller in SELLERS:
-            stmt = pg_insert(Seller).values(seller.model_dump()).on_conflict_do_nothing(index_elements=["id"])
+            stmt = pg_insert(Seller).values(seller.model_dump())
             await session.execute(stmt)
         for product in PRODUCTS:
-            stmt = pg_insert(Product).values(product.model_dump()).on_conflict_do_nothing(index_elements=["id"])
+            stmt = pg_insert(Product).values(product.model_dump())
             await session.execute(stmt)
         for order in ORDERS:
-            stmt = pg_insert(Order).values(order.model_dump()).on_conflict_do_nothing(index_elements=["id"])
+            stmt = pg_insert(Order).values(order.model_dump())
             await session.execute(stmt)
         for oi in OIS:
-            stmt = pg_insert(OrderItem).values(oi.model_dump()).on_conflict_do_nothing(index_elements=["id"])
+            stmt = pg_insert(OrderItem).values(oi.model_dump())
             await session.execute(stmt)
         await session.commit()

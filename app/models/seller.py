@@ -13,7 +13,7 @@ class Seller(SQLModel, table=True):
     store_name: str
     description: str = Field(sa_column=Column("description", Text()))
     avatar_url: Optional[str] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     user: "User" = Relationship(back_populates="seller")
     products: list["Product"] = Relationship(back_populates="seller")

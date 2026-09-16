@@ -19,10 +19,9 @@ class User(SQLModel, table=True):
     email: str = Field(index=True, unique=True)
     password_hash: str
     role: Role = Field(sa_column_kwargs={"nullable": False})
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)})
 
     seller: Optional["Seller"] = Relationship(back_populates="user")
     products_approved: list["Product"] = Relationship(back_populates="approved_by_user")
     orders_as_customer: list["Order"] = Relationship(back_populates="customer")
-    orders_as_seller: list["Order"] = Relationship(back_populates="seller")
