@@ -84,16 +84,16 @@ OIS = [
 async def seed() -> None:
     session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with session_factory() as session:
-        for user in USERS:
-            await session.execute(User.__table__.delete().where(User.id == user.id))
-        for seller in SELLERS:
-            await session.execute(Seller.__table__.delete().where(Seller.id == seller.id))
-        for product in PRODUCTS:
-            await session.execute(Product.__table__.delete().where(Product.id == product.id))
-        for order in ORDERS:
-            await session.execute(Order.__table__.delete().where(Order.id == order.id))
         for oi in OIS:
             await session.execute(OrderItem.__table__.delete().where(OrderItem.id == oi.id))
+        for order in ORDERS:
+            await session.execute(Order.__table__.delete().where(Order.id == order.id))
+        for product in PRODUCTS:
+            await session.execute(Product.__table__.delete().where(Product.id == product.id))
+        for seller in SELLERS:
+            await session.execute(Seller.__table__.delete().where(Seller.id == seller.id))
+        for user in USERS:
+            await session.execute(User.__table__.delete().where(User.id == user.id))
         for user in USERS:
             stmt = pg_insert(User).values(user.model_dump())
             await session.execute(stmt)
