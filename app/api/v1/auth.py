@@ -38,7 +38,8 @@ async def login(data: LoginRequest, session: AsyncSession = Depends(get_session)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="UNAUTHENTICATED")
     access = create_access_token(str(user.id), user.role.value)
     refresh = create_refresh_token(str(user.id), user.role.value)
-    return TokenResponse(access_token=access, refresh_token=refresh).model_dump() | {"user": UserRead.model_validate(user.model_dump())}
+    user_data = UserRead(id=str(user.id), name=user.name, email=user.email, role=user.role.value, avatar_url=None, created_at=str(user.created_at)).model_dump()
+    return TokenResponse(access_token=access, refresh_token=refresh).model_dump() | {"user": user_data}
 
 
 @router.post("/refresh")
