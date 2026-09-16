@@ -25,11 +25,11 @@ SELLER1_ID = _uid("seller:1")
 SELLER2_ID = _uid("seller:2")
 
 USERS = [
-    User(id=ADMIN_ID, name="Bazaarly Admin", email="admin@bazaarly.test", password_hash=hash_password("password123"), role=Role.admin),
-    User(id=SELLER_USER1_ID, name="Aria Stores", email="seller@bazaarly.test", password_hash=hash_password("password123"), role=Role.seller),
-    User(id=SELLER_USER2_ID, name="Nova Crafts", email="seller2@bazaarly.test", password_hash=hash_password("password123"), role=Role.seller),
-    User(id=CUST1_ID, name="Jane Buyer", email="customer@bazaarly.test", password_hash=hash_password("password123"), role=Role.customer),
-    User(id=CUST2_ID, name="Ravi K.", email="customer2@bazaarly.test", password_hash=hash_password("password123"), role=Role.customer),
+    User(id=ADMIN_ID, name="Bazaarly Admin", email="admin@bazaarly.com", password_hash=hash_password("password123"), role=Role.admin),
+    User(id=SELLER_USER1_ID, name="Aria Stores", email="seller@bazaarly.com", password_hash=hash_password("password123"), role=Role.seller),
+    User(id=SELLER_USER2_ID, name="Nova Crafts", email="seller2@bazaarly.com", password_hash=hash_password("password123"), role=Role.seller),
+    User(id=CUST1_ID, name="Jane Buyer", email="customer@bazaarly.com", password_hash=hash_password("password123"), role=Role.customer),
+    User(id=CUST2_ID, name="Ravi K.", email="customer2@bazaarly.com", password_hash=hash_password("password123"), role=Role.customer),
 ]
 
 SELLERS = [
