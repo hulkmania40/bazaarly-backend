@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc libpq-dev && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .
-RUN pip install --no-cache-dir -e ".[dev]"
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel hatchling && \
+    pip install --no-cache-dir -e ".[dev]"
 
 COPY . .
 

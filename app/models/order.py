@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, Numeric
 
 
 class OrderStatus(str, Enum):
@@ -21,7 +22,7 @@ class Order(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     customer_id: UUID = Field(foreign_key="users.id", index=True)
     seller_id: UUID = Field(foreign_key="sellers.id", index=True)
-    total: Decimal = Field(sa_column_kwargs={"type_": "NUMERIC(10,2)"})
+    total: Decimal = Field(sa_column=Column("total", Numeric(10, 2)))
     currency: str = "USD"
     status: OrderStatus = Field(default=OrderStatus.pending, index=True)
     payment_ref: Optional[str] = Field(default=None, index=True, unique=True)
@@ -40,7 +41,7 @@ class OrderItem(SQLModel, table=True):
     order_id: UUID = Field(foreign_key="orders.id", index=True)
     product_id: UUID = Field(foreign_key="products.id")
     title: str
-    price: Decimal = Field(sa_column_kwargs={"type_": "NUMERIC(10,2)"})
+    price: Decimal = Field(sa_column=Column("price", Numeric(10, 2)))
     quantity: int
     image_url: str
 
