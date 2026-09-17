@@ -1,23 +1,43 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, BeforeValidator, Field
 from decimal import Decimal
-from typing import Optional
-from app.models.product import ProductStatus
+from typing import Optional, Annotated
+from uuid import UUID
+from datetime import datetime
+
+
+def _coerce_str(v):
+    if isinstance(v, (str, int, float, UUID, datetime, Decimal)):
+        return str(v)
+    return v
+
+def _coerce_float(v):
+    if isinstance(v, (int, float, Decimal)):
+        return float(v)
+    return v
+
+
+ProductId = Annotated[str, BeforeValidator(_coerce_str)]
+ProductSellerId = Annotated[str, BeforeValidator(_coerce_str)]
+ProductTimestamp = Annotated[str, BeforeValidator(_coerce_str)]
+ProductPrice = Annotated[float, BeforeValidator(_coerce_float)]
 
 
 class ProductRead(BaseModel):
-    id: str
-    seller_id: str
+    model_config = ConfigDict(from_attributes=True)
+
+    id: ProductId
+    seller_id: ProductSellerId
     title: str
     description: str
-    price: float
+    price: ProductPrice
     currency: str
     image_url: str
     status: str
     rejection_reason: Optional[str] = None
     approved_at: Optional[str] = None
     approved_by: Optional[str] = None
-    created_at: str
-    updated_at: str
+    created_at: ProductTimestamp
+    updated_at: ProductTimestamp
 
 
 class ProductCreate(BaseModel):
