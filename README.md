@@ -39,11 +39,11 @@ uvicorn app.main:app --reload
 
 | Email | Password | Role |
 |---|---|---|
-| admin@bazaarly.test | password123 | admin |
-| seller@bazaarly.test | password123 | seller |
-| seller2@bazaarly.test | password123 | seller |
-| customer@bazaarly.test | password123 | customer |
-| customer2@bazaarly.test | password123 | customer |
+| admin@bazaarly.com | password123 | admin |
+| seller@bazaarly.com | password123 | seller |
+| seller2@bazaarly.com | password123 | seller |
+| customer@bazaarly.com | password123 | customer |
+| customer2@bazaarly.com | password123 | customer |
 
 ## API Endpoints
 
